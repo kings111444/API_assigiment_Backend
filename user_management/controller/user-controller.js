@@ -46,7 +46,7 @@ const addUser = async (req, res,next ) => {
     return res.status(201).json({user});
 };
 
-const updateUser = async (req, res,next ) => {
+const updateUser = async (req,res,next ) => {
     const id = req.params.id;
     const {username, password, role} = req.body;
 
@@ -61,7 +61,7 @@ const updateUser = async (req, res,next ) => {
     let user;
     
     try{
-        user = await user.findByIdAndUpdate(id,{username,password});
+        user = await User.findByIdAndUpdate(id,{username,password,role});
     }catch(err){
         return next(err);
     }
@@ -77,7 +77,7 @@ const deleteUser = async (req, res,next ) => {
     const id = req.params.id;
     let user;
     try{
-        user = await user.findByIdAndRemove(id);
+        user = await User.findByIdAndRemove(id);
     }catch(err){
         return next(err);
     }
@@ -87,22 +87,8 @@ const deleteUser = async (req, res,next ) => {
     return res.status(200).json({message: "User has been deleted."});
 };
 
-const getUserById = async (req,res,next) => {
-    const id = req.params.id;
-    let user;
-    try{
-        user = await user.findById(id);
-    }catch(err){
-        return next(err);
-    }
-    if(!user){      
-        return res.status(404).json({message:"Unable to find user"});
-    }
-    return res.status(200).json({user});
-};
 
 exports.getAllUsers = getAllUsers;
 exports.addUser = addUser;
 exports.updateUser = updateUser;
 exports.deleteUser = deleteUser;
-exports.getUserById = getUserById;
