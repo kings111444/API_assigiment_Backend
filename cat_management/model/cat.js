@@ -4,7 +4,6 @@ const catSchema = new Schema({
     name:{
         type:String,
         required:true,
-        unique:true
     },
     gender:{
         type:String,

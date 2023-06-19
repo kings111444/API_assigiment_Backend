@@ -1,4 +1,5 @@
 const User = require('../model/user');
+const bcrypt = require('bcrypt');
 
 const getAllUsers = async (req, res,next ) => {
     let users;
@@ -31,7 +32,7 @@ const addUser = async (req, res,next ) => {
     try{
         user = new User({
             username,
-            password,
+            password: bcrypt.hashSync(password, 10),
             role
         });
     user = await user.save();
@@ -43,7 +44,7 @@ const addUser = async (req, res,next ) => {
         return res.status(500).json({message:"Unable to add user"});
     }
 
-    return res.status(201).json({user});
+    return res.status(201).json({message:"User added"});
 };
 
 const updateUser = async (req,res,next ) => {
@@ -61,7 +62,7 @@ const updateUser = async (req,res,next ) => {
     let user;
     
     try{
-        user = await User.findByIdAndUpdate(id,{username,password,role});
+        user = await User.findByIdAndUpdate(id,{username,password: bcrypt.hashSync(password, 10),role});
     }catch(err){
         return next(err);
     }
@@ -87,8 +88,26 @@ const deleteUser = async (req, res,next ) => {
     return res.status(200).json({message: "User has been deleted."});
 };
 
+const login = async (req, res) => {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+    if (!user) {
+        return res.status(401).json({ message: 'Invalid username or password' });
+    }
+    const match = await bcrypt.compare(password, user.password);
+  if (!match) {
+    return res.status(401).json({ message: 'Invalid password' });
+  }
+  if (user.role === 'staff') {
+    res.status(200).json({user, message: "Staff"})
+  }else{
+    res.status(200).json({message: "Welcome"});
+  }
+ 
+}
 
 exports.getAllUsers = getAllUsers;
 exports.addUser = addUser;
 exports.updateUser = updateUser;
 exports.deleteUser = deleteUser;
+exports.login = login;
